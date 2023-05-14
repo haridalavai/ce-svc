@@ -7,13 +7,15 @@ import { PrismaService } from 'src/shared/prisma.service';
 export class UserService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     try {
-      const existUser = this.prismaService.user.findUnique({
+      const existUser = await this.prismaService.user.findUnique({
         where: {
           email: createUserDto.email,
         },
       });
+
+      console.log(existUser);
 
       if (existUser) {
         throw new BadRequestException('Email already exists');
