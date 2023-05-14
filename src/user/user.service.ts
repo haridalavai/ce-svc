@@ -15,8 +15,6 @@ export class UserService {
         },
       });
 
-      console.log(existUser);
-
       if (existUser) {
         throw new BadRequestException('Email already exists');
       }
