@@ -1,11 +1,16 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/shared/prisma.service';
+import { ManagementClient } from 'auth0';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject('AUTH0_MANAGEMENT_CLIENT')
+    private auth0ManagementClient: ManagementClient,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     try {
@@ -29,11 +34,20 @@ export class UserService {
   }
 
   findAll() {
-    return `This action returns all user`;
+    try {
+      const users = this.prismaService.user.findMany();
+      return users;
+    } catch (error) {
+      throw error;
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id,
+      },
+    });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
